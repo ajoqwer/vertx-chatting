@@ -53,35 +53,36 @@ public class MainVerticle extends AbstractVerticle {
     cr.getConfig(json -> {
       JsonObject config = json.result().getJsonObject("database");
       System.out.println("config ::11 "+config.toString());
-      System.out.println("11 : " + temp.getJsonObject("test"));
-      System.out.println("22 : " + dbConfig.getJsonObject("db"));
 
-      // PgConnectOptions 인스턴스 생성시  json 으로 접속정보 설정하면 자동 매핑해서 셋팅함.
+    });
+
+    System.out.println("11 : " + temp.getJsonObject("test"));
+    System.out.println("22 : " + dbConfig.getJsonObject("db"));
+
+    // PgConnectOptions 인스턴스 생성시  json 으로 접속정보 설정하면 자동 매핑해서 셋팅함.
     PgConnectOptions connectOptions = new PgConnectOptions(dbConfig.getJsonObject("db"));
     //  PgPool은 interface poll 을,  poll은 SqlClient를 상속받고있음   PgPool로 쓰는게 사용에 유리
     //  poll 형은 sqlClient 의 기능 전부 구현가능
     PgPool pool = PgPool.pool(vertx, connectOptions, new PoolOptions().setMaxSize(10));
     // SqlClient sqlClient = PgPool.pool(vertx, connectOptions, new PoolOptions().setMaxSize(10));
 
-      System.out.println(" 0 ");
-      Router router = Router.router(vertx);
-      router.route("/");
-      router.mountSubRouter("/api",chatRouter(pool));
+    System.out.println(" 0 ");
+    Router router = Router.router(vertx);
+    router.route("/");
+    router.mountSubRouter("/api",chatRouter(pool));
 
-      router.mountSubRouter("/eventbus",eventbusRouter(pool));
+    router.mountSubRouter("/eventbus",eventbusRouter(pool));
 
-      router.route().handler(StaticHandler.create().setWebRoot("view"));
+    router.route().handler(StaticHandler.create().setWebRoot("view"));
 
-      vertx.createHttpServer().requestHandler(router).listen(8888);
+    vertx.createHttpServer().requestHandler(router).listen(8888);
 
-      // 해당 시간마다  eventbus를 통한 news-feed  address 로  메세지 전송
-      JsonObject customMessage = new JsonObject();
-      customMessage.put("statusCode",200);
-      customMessage.put("resultCode","체크");
-      customMessage.put("summary","체크");
-      //vertx.setPeriodic(10000,t ->vertx.eventBus().publish("news-feed",customMessage));
-
-    });
+    // 해당 시간마다  eventbus를 통한 news-feed  address 로  메세지 전송
+    JsonObject customMessage = new JsonObject();
+    customMessage.put("statusCode",200);
+    customMessage.put("resultCode","체크");
+    customMessage.put("summary","체크");
+    //vertx.setPeriodic(10000,t ->vertx.eventBus().publish("news-feed",customMessage));
   }
 
   private Router chatRouter(PgPool pool){
