@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+  <script src="eventbus.js"></script>
+</head>
+
+<style>
+  .news {
+    font-size: 20pt;
+  }
+</style>
+
+<body>
+  <div id="lock" >
+    <div id="modal" style="margin-top:25%;margin-left:25%">
+      <input type="text" id="userId" placeholder="아이디입력" style="height:40px;width:200px">
+      <button id="modalBtn" style="height:45px;width:50px"> 확인 </button>
+    </div>
+  </div>
+  <div id="chat">
+    <div class="news">Latest news::</div>
+    <br>
+
+    <div id="status" class="news"></div>
+
+    <div class="inputBar" style="position:fixed;bottom:2%;display:none">
+      <input id="userId2" type="text" placeholder="아이디" readonly="true">
+      <input id="message" type="text" placeholder="대화내용 입력">
+      <button id="sendMsg">전송</button>
+    </div>
+  </div>
+  <script>
+
+    $(document).ready(function() {
+      blockBeforeInputId();
+    });
+
+    function blockBeforeInputId(){
+      var height =$(document).height();
+      var width =$(window).width();
+      $('#lock').css({'height': height, 'width': width,'background-color':'#000','opacity':'60%','position':'absolute'});
+    };
+
+    $('#modalBtn').click(function(e){
+      var userId = $('#userId').val();
+      $.ajax({
+        type: 'GET',
+        url: 'http://localhost:8888/api/join',
+        data : {
+          'userId' : $('#userId').val()
+        },
+        dataType:'text',
+        success: function(res){
+          console.log('성공');
+          console.log(res);
+          $('#lock').css({'display':'none'});
+          $('#inputBar').css({'display':''});
+          $('#userId2').val(userId);
+        },
+        error: function(r,e){
+          console.log('실패');
+          console.log(r);
+          console.log(e);
+        }
+      });
+
+    })
+
+    $('#sendMsg').click(function(e){
+      $.ajax({
+        type: 'GET',
+        url: 'http://localhost:8888/api/send',
+        data : {
+          'userId' : $('#userId').val(),
+          'message': $('#message').val()
+        },
+        dataType:'text',
+        success: function(res){
+          console.log('성공');
+          console.log(res);
+          $('#message').val('');
+        },
+        error: function(r,e){
+          console.log('실패');
+          console.log(r);
+          console.log(e);
+        }
+      });
+    })
+
+    var eb = new EventBus("http://localhost:8888/eventbus");
+    eb.onopen = function () {
+      eb.registerHandler("news-feed", function (err, msg) {
+        console.log(msg);
+        if(msg.body.userId != undefined || msg.body.userId != null){
+          var str = "<code>" + msg.body.userId + ' : '+msg.body.message + "</code><br>";
+          $('#status').append(str);
+        }
+      })
+    };
+
+
+  </script>
+</body>
+</html>

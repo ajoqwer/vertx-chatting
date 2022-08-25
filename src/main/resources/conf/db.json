@@ -1,0 +1,7 @@
+{
+  "port": 5432,
+  "host": "localhost",
+  "database": "ajoqwer",
+  "user": "ajoqwer",
+  "password" : "ajoqwer"
+}
