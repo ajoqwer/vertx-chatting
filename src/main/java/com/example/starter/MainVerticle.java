@@ -25,7 +25,7 @@ import io.vertx.sqlclient.PoolOptions;
 public class MainVerticle extends AbstractVerticle {
 
   static final String STATIC_PATH = System.getProperty("user.dir") + "/src/main/resources";
-
+  //issue commit test dd
   public static void main(String[] args){
     Vertx vertx = Vertx.vertx();
     vertx.deployVerticle(new MainVerticle());
